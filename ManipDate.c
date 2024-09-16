@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef enum{
     Janvier=1,
@@ -16,18 +17,14 @@ typedef enum{
 }Mois;
 
 typedef struct{
-    int jour;
+    unsigned short jour;
     Mois mois;
-    int annee;
+    unsigned short annee;
 }Date;
 
-int main(void){
-    Date d;
-    initialiseDate(&d);
-    afficheDate(&d);
-}
 
-void InitialiseDate(Date *d) {
+
+void initialiseDate(Date *d) {
     
     int jour, mois, annee;
 
@@ -46,7 +43,35 @@ void InitialiseDate(Date *d) {
 }
 
 void afficheDate(Date *d){
-    printf("la date est %d",d->jour," %d", Mois(d->mois), " %d", d->annee)
+    printf("la date est %d/ %d/ %d",d->jour, d->mois, d->annee);
+}
+
+Date creerDateParCopie(){
+    Date d;
+    initialiseDate(&d);
+    return d;
+}
+
+
+Date* newDate(){
+    Date* dataDate = (Date*)malloc(sizeof(Date));
+    initialiseDate(dataDate);
+    return dataDate;
+}
+
+int main(void){
+    int nbDates;
+    printf("nombre de date:")
+    scanf("%i",&nbDates);
+    Date *tabDate[nbDates];
+    int i;
+    for(i=0; i<nbDates;i++)
+        tabDAte[i]=newDate();
+    for(i=0; i<nbDates;i++)
+        afficheDate(tabDate[i]);
+    for(i=0; i<nbDates;i++)
+        free(tabDate[i]);
+    return 0
 }
 
 
