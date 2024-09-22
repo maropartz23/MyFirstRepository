@@ -4,13 +4,17 @@
 #include <errno.h>
 #include <assert.h>
 
- struct prixTuring{
+ typedef struct {
         unsigned short annee;
         char * nom;
         char * nature;
-    };
+    }turing;
 
-    typedef struct prixTuring turing;
+
+typedef struct{
+    turing * winners;
+    int numberOfWinners;
+}Winners;
 
 
 int numberOfWinners(FILE * f){
@@ -24,48 +28,66 @@ int numberOfWinners(FILE * f){
     
 }
 
-turing * readWinners(int numberOfTuringWinner,FILE * f){ //fonction à refaire avec les bons arguments 
-    turing * winners = calloc(numberOfTuringWinner,sizeof(turing));
-    for(int i = 0; i < numberOfTuringWinner; ++i)
-        readwinner(&winners[i],f)  //&winners[i] -> adresse d'une struct  et   readwinner à écrire 
+void readWinners(Winners * listWinners,FILE * f){
+    int maxline =1024;
+    int nbrWinners = numberOfWinners(f);
+    int i =0;
+    char * ligne;
 
-    return winners;
+    ligne = malloc(maxline*sizeof(char));
+    listWinners->winners = malloc(nbrWinners*sizeof(turing));
+    listWinners->numberOfWinners = nbrWinners;
 
-    // en dessous partie à revoir  -> fonction readWinner? 
-    while(feof(f)==0){
-        char buffer[1024];
-        fgets(buffer,1024,f);
-        int k=0;
-        
-        while (buffer[k]=="\0"){
-            int l=0;
-            int m=0;
-            
-+
+    while(fgets(ligne, maxline, f) != NULL) {
+		if(strcmp(ligne, "\n") != 0){
+			char *token;
 
-            for(int i=0; i<2;i++){
-                //mettre une condition si i=0 car int et non char * 
-                while(buffer[l]==";"){
-                    l++;    
-                    }
-                char *infoStruct=malloc((l-m)*sizeof(char))
-                for (int j=m;j<l-m;j++ ){
-                    infoStruct[j]=buffer[j];
-                }
-                if(i==1):{
-                    turing->nom= infoStruct;
-                }
-                else if (i==2)
-                {
-                    turing->nature=infoStruct;
-                }
-                
-                m=l;
-                l++;
-            }
-                
+			token = strtok(ligne, ";");
+			listWinners->winners[i].annee = atoi(token);
+
+			token = strtok(NULL, ";");
+			listWinners->winners[i].nom = strdup(token);
+
+			token = strtok(NULL, "\n");
+			listWinners->winners[i].nature = strdup(token);
+
+			i++;
+		}
+    }
+}
+
+void printYear(int year){
+    char tabYear[5];
+    sprintf(tabYear, "%d", year);
+}
+
+void printWinners(FILE * f,Winners * listOfWinners){
+    int maxline = 1024;
+    int nbrOfWinners = numberOfWinners(f);
+    char * ligne;
+
+    rewind(f);
+    ligne=malloc(nbrOfWinners*sizeof(char));
+
+    for(int i=0; i< nbrOfWinners; i++){
+            int year = listOfWinners->winners[i].annee;
+            char tabYear[5];
+            sprintf(tabYear, "%d", year);
+            sprintf(ligne,"%s;%s;%s\n",tabYear,listOfWinners->winners[i].nom, listOfWinners->winners[i].nature);
+            fputs(ligne, f );
+            printf("%s", ligne);
+    }
+    free(ligne);
+}
+
+void infosAnnee(Winners * listOfWinners, unsigned short year){
+    int nbrOfWinners = listOfWinners->numberOfWinners;
+    for(int i =0; i< nbrOfWinners; i++){
+        if(listOfWinners->winners[i].annee==year){
+            printf("l'année %hu, le(s) gagnant(s) ont été: %s\nNature des travaux:%s",year, listOfWinners->winners[i].nom, listOfWinners->winners[i].nature );
         }
-    }    
+    }
+    
 }
 
 
@@ -97,7 +119,16 @@ int main(int argc, char** argv){
     int winner = numberOfWinners(f);
     printf("le nombre de vainceur est: %d",winner);
 
-    turing *winners=readWinners(winner, f);
+    Winners * listOfWinners;
+    readWinners(listOfWinners, f);
+
+    Winners * winners;
+    readWinners(winners, f);
+
+
+    Winners * WinnersPrint;
+    printWinners(f, WinnersPrint);
+    infosAnnee(WinnersPrint, 2003);
 
     
 
