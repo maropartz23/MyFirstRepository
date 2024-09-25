@@ -85,14 +85,14 @@ void detruire_r(Liste l) {
 Liste ajoutFin_i(Element v, Liste l) {
 	Liste prec;
 	if(estVide(l)){
-		prec = creer(v);
-		return prec
+		return creer(v);
 	}
 	prec =l;
 	while(prec->suiv!=NULL){
 		prec=prec->suiv;		
 	}
 	prec->suiv=creer(v);
+	return l;
 	
 }
 
@@ -101,7 +101,8 @@ Liste ajoutFin_r(Element v, Liste l) {;
 	if(estVide(l)){
 		return creer(v);
 	}else{
-		ajoutFin_r(v,prec->suiv);
+		l->suiv = ajoutFin_r(v,l->suiv);
+		return l;
 	}
 }
 
@@ -113,11 +114,13 @@ bool equalsElement(Element e1, Element e2){
 // Retourne un pointeur sur l'élément de la liste l contenant la valeur v ou NULL
 // version itérative
 Liste cherche_i(Element v,Liste l) {
-	while(l!=NULL){
-		if(equalsElement(l->val, v)){
-			return l;
+	Liste prec;
+	prec = l;
+	while(prec!=NULL){
+		if(equalsElement(prec->val, v)){
+			return prec;
 		}
-		l=l->suiv
+		prec=prec->suiv;
 	}
 	printf("cette élement n'est pas dans la liste");
 	return l;
