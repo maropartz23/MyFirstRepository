@@ -18,17 +18,22 @@ typedef struct{
 
 
 int numberOfWinners(FILE * f){
+    rewind(f);
     int nbWinners=0;
     char buffer[1024];
     while (feof(f)==0){
-        fgets(buffer,1024,f);
-        nbWinners++;
+        char * ligne;
+        ligne= fgets(buffer, 1023, f);
+        if (ligne !=NULL){
+            nbWinners++;
+        }     
     }
     return nbWinners;
     
 }
 
 void readWinners(Winners * listWinners,FILE * f){
+    rewind(f);
     int maxline =1024;
     int nbrWinners = numberOfWinners(f);
     int i =0;
@@ -56,28 +61,22 @@ void readWinners(Winners * listWinners,FILE * f){
     }
 }
 
-void printYear(int year){
-    char tabYear[5];
-    sprintf(tabYear, "%d", year);
-}
-
-void printWinners(FILE * f,Winners * listOfWinners){
+void printWinners(FILE * out,Winners * listOfWinners){
+    rewind(out);
     int maxline = 1024;
-    int nbrOfWinners = numberOfWinners(f);
+    int nbrOfWinners = listOfWinners->numberOfWinners;
     char * ligne;
-
-    rewind(f);
-    ligne=malloc(nbrOfWinners*sizeof(char));
+    ligne=malloc(maxline*sizeof(char));
 
     for(int i=0; i< nbrOfWinners; i++){
+            //ligne[0]='\0';
             int year = listOfWinners->winners[i].annee;
             char tabYear[5];
             sprintf(tabYear, "%d", year);
             sprintf(ligne,"%s;%s;%s\n",tabYear,listOfWinners->winners[i].nom, listOfWinners->winners[i].nature);
-            fputs(ligne, f );
+            fputs(ligne, out);
             printf("%s", ligne);
     }
-    free(ligne);
 }
 
 void infosAnnee(Winners * listOfWinners, unsigned short year){
@@ -103,32 +102,27 @@ int main(int argc, char** argv){
     char * line;
     
 
-    if(f==NULL){
-        printf("Code de l'erreur: %d\n",  errno);
-    }
-    else{
-        while (feof(f)==0)
-        {
-            char lettre = fgetc(f);
-            putc(lettre, output);
+    // if(f==NULL){
+    //     printf("Code de l'erreur: %d\n",  errno);
+    // }
+    // else{
+    //     while (feof(f)==0)
+    //     {
+    //         char lettre = fgetc(f);
+    //         putc(lettre, output);
             
-        }
+    //     }
         
-    }
+    // }
 
     int winner = numberOfWinners(f);
-    printf("le nombre de vainceur est: %d",winner);
+    printf("le nombre de vainceur est: %d\n",winner);
 
-    Winners * listOfWinners;
-    readWinners(listOfWinners, f);
+    Winners listOfWinners;
+    readWinners(&listOfWinners, f);
 
-    Winners * winners;
-    readWinners(winners, f);
-
-
-    Winners * WinnersPrint;
-    printWinners(f, WinnersPrint);
-    infosAnnee(WinnersPrint, 2003);
+    printWinners(output, &listOfWinners);
+    infosAnnee(&listOfWinners, 2003);
 
     
 
@@ -136,5 +130,72 @@ int main(int argc, char** argv){
     fclose(output);
 
 	return EXIT_SUCCESS;
+
+    //  char *filename = NULL;
+    // char *outputFilename = NULL;
+    // int annee = -1; 
+    // int sort = 0; 
+
+    // for (int i = 1; i < argc; i++) {
+    //     if (strcmp(argv[i], "-o") == 0) {
+    //         if (i + 1 < argc) {
+    //             outputFilename = argv[++i];  
+    //         } else {
+    //             fprintf(stderr, "L'option -o nécessite un nom de fichier.\n");
+    //             return EXIT_FAILURE;
+    //         }
+    //     } else if (strcmp(argv[i], "--info") == 0) {
+    //         if (i + 1 < argc) {
+    //             annee = atoi(argv[++i]);  
+    //         } else {
+    //             fprintf(stderr, "L'option --info nécessite une année.\n");
+    //             return EXIT_FAILURE;
+    //         }
+    //     } else if (strcmp(argv[i], "--sort") == 0) {
+    //         sort = 1;  
+    //     } else {
+    //         filename = argv[i];  
+    //     }
+    // }
+
+    // if (filename == NULL) {
+    //     fprintf(stderr, "Aucun fichier d'entrée spécifié.\n");
+    //     return EXIT_FAILURE;
+    // }
+
+    // FILE *dataFile = fopen(filename, "r");
+    // if (dataFile == NULL) {
+    //     perror("Erreur lors de l'ouverture du fichier d'entrée");
+    //     return EXIT_FAILURE;
+    // }
+
+    // Winners listeGagnants;
+    // readWinners( &listeGagnants, dataFile);
+    // fclose(dataFile);
+
+    // if (annee != -1) {
+    //     infosAnnee(&listeGagnants, annee);  
+    // }
+
+    // // if (sort == 1) {
+    // //     sortTuringWinnersByYear(&listeGagnants);
+    // // }
+
+    // if (outputFilename != NULL) {
+    //     FILE *outputFile = fopen(outputFilename, "w");
+    //     if (outputFile == NULL) {
+    //         perror("Erreur lors de l'ouverture du fichier de sortie");
+    //         free(listeGagnants.winners); 
+    //         return EXIT_FAILURE;
+    //     }
+
+    //     printWinners(outputFile, &listeGagnants);  
+    //     fclose(outputFile);  
+    // }
+
+    // free(listeGagnants.winners);
+
+    // return EXIT_SUCCESS;
+
 }
 
